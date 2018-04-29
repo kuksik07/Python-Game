@@ -1,6 +1,8 @@
 import pygame
-import pymunk as pm
+import pymunk
 from pymunk import Vec2d
+import random
+
 from settings import *
 
 # class Ball(pygame.sprite.Sprite):
@@ -22,18 +24,18 @@ from settings import *
     #     # self.image = pygame.transform.scale(self.image, (self.width, self.height))
     #     self.current_speed = -self.max_speed
 
-class Ball():
+class Ball2():
     def __init__(self, distance, angle, x, y, space):
         mass = 5
         radius = 12
-        inertia = pm.moment_for_circle(mass, 0, radius, (0, 0))
-        body = pm.Body(mass, inertia)
+        inertia = pymunk.moment_for_circle(mass, 0, radius, (0, 0))
+        body = pymunk.Body(mass, inertia)
         body.position = x, y
         power = distance * 53
         impulse = power * Vec2d(1, 0)
         angle = -angle
         body.apply_impulse_at_local_point(impulse.rotated(angle))
-        shape = pm.Circle(body, radius, (0, 0))
+        shape = pymunk.Circle(body, radius, (0, 0))
         shape.elasticity = 0.95
         shape.friction = 1
         shape.collision_type = 0
@@ -41,3 +43,20 @@ class Ball():
         self.body = body
         self.shape = shape
 
+class Ball():
+    def __init__(self, space):
+        mass = 10
+        radius = 20
+        inertia = pymunk.moment_for_circle(mass, 0, radius, (0, 0))
+        body = pymunk.Body(mass, inertia)
+        x = random.randint(115, 350)
+        body.position = x, 400
+        # power = distance * 53
+        # impulse = power * Vec2d(1, 0)
+        # body.apply_impulse_at_local_point(impulse.rotated(angle))
+        shape = pymunk.Circle(body, radius, (0, 0))
+        shape.elasticity = 0.95
+        shape.friction = 1
+        space.add(body, shape)
+        self.body = body
+        self.shape = shape

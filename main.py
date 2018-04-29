@@ -2,36 +2,27 @@ import pygame
 import pymunk
 import pymunk.pygame_util
 from pymunk import Vec2d
-import math, sys, random
-
+import math, sys, random, time
 from game_objects import Ball
 from settings import *
 
-mouse_pressed = False
-
+# Pygame
 pygame.init()
-
 pygame.display.set_caption("My game!")
-
-# space.add(body)
-
 screen = pygame.display.set_mode(SCREEN_SIZE)
 clock = pygame.time.Clock()
+mouse_pressed = False
 
-# Game objects
-# ball = Ball()
+# Sprites
+ball_img = pygame.image.load('assets/ball4.png')
+background = pygame.image.load('assets/bg2.png')
 
-def to_pygame(p):
-    """Convert pymunk to pygame coordinates"""
-    return int(p.x), int(-p.y+600)
-
-def flipy(y):
-    """Small hack to convert chipmunk physics to pygame coordinates"""
-    return -y+600
-
+# Physics
 space = pymunk.Space()
 space.gravity = (0.0, -700.0)
 draw_options = pymunk.pygame_util.DrawOptions(screen)
+ticks_to_next_ball = 10
+balls = []
 
 # Static floor
 static_body = pymunk.Body(body_type=pymunk.Body.STATIC)
@@ -44,10 +35,11 @@ for line in static_lines:
 
 space.add(static_lines)
 
-ticks_to_next_ball = 10
 
-ball_img = pygame.image.load('assets/ball2.png')
-balls = []
+# Convert pymunk to pygame coordinates
+def to_pygame(p):
+    return int(p.x), int(-p.y+600)
+
 
 while True:
     for event in pygame.event.get():
@@ -70,32 +62,22 @@ while True:
     ticks_to_next_ball -= 1
     if ticks_to_next_ball <= 0:
         ticks_to_next_ball = 100
-        mass = 10
-        radius = 20
-        inertia = pymunk.moment_for_circle(mass, 0, radius, (0, 0))
-        body = pymunk.Body(mass, inertia)
-        x = random.randint(115, 350)
-        body.position = x, 400
-        # power = distance * 53
-        # impulse = power * Vec2d(1, 0)
-        # body.apply_impulse_at_local_point(impulse.rotated(angle))
-        shape = pymunk.Circle(body, radius, (0, 0))
-        shape.elasticity = 0.95
-        shape.friction = 1
-        space.add(body, shape)
-        balls.append(shape)
+        ball = Ball(space)
+        balls.append(ball)
 
-    ### Clear screen
+
+    # Draw background
     screen.fill(WHITE)
+    screen.blit(background, (-50, -50))
 
-    ### Draw stuff
+    # Draw stuff
     balls_to_remove = []
     for ball in balls:
         if ball.body.position.y < 60:
             balls_to_remove.append(ball)
         # image draw
         p = ball.body.position
-        p = Vec2d(p.x, flipy(p.y))
+        p = Vec2d(to_pygame(p))
 
         # we need to rotate 180 degrees because of the y coordinate flip
         angle_degrees = math.degrees(ball.body.angle) + 180
@@ -107,17 +89,17 @@ while True:
         screen.blit(rotated_logo_img, p)
 
     for ball in balls_to_remove:
-        space.remove(ball, ball.body)
+        space.remove(ball.shape, ball.shape.body)
         balls.remove(ball)
 
-    # space.debug_draw(draw_options)
+    # space.debug_draw(draw_options) # to display the physical representation
 
-    ### Update physics
+    # Update physics
     dt = 1.0 / FPS
     for x in range(1):
         space.step(dt)
 
-    ### Flip screen
+    # Flip screen
     pygame.display.flip()
     clock.tick(FPS)
     pygame.display.set_caption("fps: " + str(clock.get_fps()))
