@@ -44,12 +44,11 @@ class Ball2():
         self.shape = shape
 
 class Ball():
-    def __init__(self, space):
+    def __init__(self, space, x):
         mass = 10
         radius = 20
         inertia = pymunk.moment_for_circle(mass, 0, radius, (0, 0))
         body = pymunk.Body(mass, inertia)
-        x = random.randint(115, 350)
         body.position = x, 400
         # power = distance * 53
         # impulse = power * Vec2d(1, 0)
