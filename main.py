@@ -15,7 +15,7 @@ mouse_pressed = False
 
 # Sprites
 ball_img = pygame.image.load('assets/ball4.png')
-background = pygame.image.load('assets/bg2.png')
+background = pygame.image.load('assets/bg6.png')
 
 # Physics
 space = pymunk.Space()
@@ -25,7 +25,8 @@ ticks_to_next_ball = 10
 balls = []
 ball_path = []
 counter = 0
-count = 10
+delete_path = False
+
 restart_counter = False
 
 # Static floor
@@ -44,6 +45,12 @@ space.add(static_lines)
 def to_pygame(p):
     return int(p.x), int(-p.y+600)
 
+def distance(xo, yo, x, y):
+    """distance between points"""
+    dx = x - xo
+    dy = y - yo
+    d = ((dx ** 2) + (dy ** 2)) ** 0.5
+    return d
 
 while True:
     for event in pygame.event.get():
@@ -81,22 +88,24 @@ while True:
         counter = 0
         restart_counter = False
 
-    for point in ball_path:
-        pygame.draw.circle(screen, WHITE, point, 3, 0)
-
     for ball in balls:
         if ball.body.position.y < 60:
             balls_to_remove.append(ball)
         # image draw
+
         p = ball.body.position
         p = Vec2d(to_pygame(p))
 
         # Draw the trail
+        for point in ball.ball_path:
+            pygame.draw.circle(screen, ball.path_color, point, 3, 0)
+
+        # Add / Remove the trail
         if counter >= 4:
-            ball_path.append(p + (0, 40))
+            ball.ball_path.append(p + (0, 50))
             restart_counter = True
-            if len(ball_path) >= 10:
-                ball_path.pop(0)
+            if len(ball.ball_path) >= 20:
+                ball.ball_path.pop(0)
                 # del ball_path[:2]
 
         # We need to rotate 180 degrees because of the y coordinate flip
@@ -112,9 +121,11 @@ while True:
         space.remove(ball.shape, ball.shape.body)
         balls.remove(ball)
 
+    # space.debug_draw(draw_options) # to display the physical representation
+
     # Update physics
-    dt = 1.0 / FPS
-    for x in range(1):
+    dt = 1.0 / FPS / 2.
+    for x in range(2):
         space.step(dt)
 
     # Flip screen

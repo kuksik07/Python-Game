@@ -59,3 +59,5 @@ class Ball():
         space.add(body, shape)
         self.body = body
         self.shape = shape
+        self.ball_path = []
+        self.path_color = (0, random.randint(200, 255), random.randint(200, 255))
