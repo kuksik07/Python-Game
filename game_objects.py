@@ -24,10 +24,10 @@ from settings import *
     #     # self.image = pygame.transform.scale(self.image, (self.width, self.height))
     #     self.current_speed = -self.max_speed
 
-class Ball2():
+class Ball():
     def __init__(self, distance, angle, x, y, space):
         mass = 5
-        radius = 12
+        radius = 20
         inertia = pymunk.moment_for_circle(mass, 0, radius, (0, 0))
         body = pymunk.Body(mass, inertia)
         body.position = x, y
@@ -42,8 +42,10 @@ class Ball2():
         space.add(body, shape)
         self.body = body
         self.shape = shape
+        self.ball_path = []
+        self.path_color = (0, random.randint(200, 255), random.randint(200, 255))
 
-class Ball():
+class Ball2():
     def __init__(self, space, x):
         mass = 10
         radius = 20
