@@ -25,3 +25,17 @@ class Ball():
         self.ball_path = []
         self.path_color = (0, random.randint(200, 255), random.randint(200, 255))
 
+
+class Polygon():
+    def __init__(self, pos, size, space):
+        mass = 5
+        moment = pymunk.moment_for_box(mass, size)
+        body = pymunk.Body(mass, moment)
+        body.position = Vec2d(pos)
+        shape = pymunk.Poly.create_box(body, size)
+        shape.friction = 0.4
+        shape.collision_type = 2
+        space.add(body, shape)
+        self.body = body
+        self.shape = shape
+

@@ -3,13 +3,14 @@ import pymunk
 import pymunk.pygame_util
 from pymunk import Vec2d
 import sys, random, time, math
-from game_objects import Ball
+from game_objects import *
 from settings import *  # All sprites, colors, etc. - are there
 
 # Pygame
 pygame.init()
 pygame.display.set_caption("My game!")
 screen = pygame.display.set_mode(SCREEN_SIZE)
+pygame.mouse.set_visible(False)
 clock = pygame.time.Clock()
 mouse_pressed = False
 
@@ -19,6 +20,7 @@ space.gravity = (0.0, -700.0)
 draw_options = pymunk.pygame_util.DrawOptions(screen)
 
 balls = []
+boxes = []
 ticks_to_next_ball = 10
 rope_lenght = 90
 mouse_distance = 0
@@ -42,6 +44,14 @@ for line in static_lines:
 
 space.add(static_lines)
 
+box = Polygon((800, 70), (30, 100), space)
+boxes.append(box)
+box = Polygon((900, 70), (30, 100), space)
+boxes.append(box)
+box = Polygon((850, 190), (130, 30), space)
+boxes.append(box)
+box = Polygon((850, 220), (30, 100), space)
+boxes.append(box)
 
 # Convert pymunk to pygame coordinates
 def to_pygame(p):
@@ -177,7 +187,7 @@ while True:
 
         # Draw the trail
         for point in ball.ball_path:
-            pygame.draw.circle(screen, ball.path_color, point, 3, 0)
+            pygame.draw.circle(screen, WHITE, point, 3, 0)
 
         # Add / Remove the trail
         if counter >= 3:
@@ -204,7 +214,13 @@ while True:
     # Draw back side of the sling shot
     screen.blit(sling_shot_front, (140, 470))
 
-    # space.debug_draw(draw_options) # to display the physical representation
+    # space.debug_draw(draw_options)  # to display the physical representation
+
+    # Cursor
+    if not mouse_pressed:
+        screen.blit(cursor, (x_mouse, y_mouse))
+    else:
+        screen.blit(cursor_pressed, (x_mouse, y_mouse))
 
     # Update physics
     dt = 1.0 / FPS / 2.

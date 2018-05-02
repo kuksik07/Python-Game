@@ -15,8 +15,10 @@ ROPE_FRONT_COLOR = (97, 63, 121)
 FPS = 50
 
 # Sprites
-background = pygame.image.load('assets/bg6.png')
-ball_img = pygame.image.load('assets/ball4.png')
-ball_img = pygame.transform.scale(ball_img, (30, 30))
-sling_shot_back = pygame.image.load('assets/sling-shot-back2.png')
-sling_shot_front = pygame.image.load('assets/sling-shot-front2.png')
+background = pygame.image.load('assets/pictures/bg6.png')
+cursor = pygame.image.load('assets/pictures/cursor.png')
+cursor_pressed = pygame.image.load('assets/pictures/cursor_pressed.png')
+ball_img = pygame.image.load('assets/pictures/ball_new.png')
+# ball_img = pygame.transform.scale(ball_img, (30, 30))
+sling_shot_back = pygame.image.load('assets/pictures/sling-shot-back2.png')
+sling_shot_front = pygame.image.load('assets/pictures/sling-shot-front2.png')
