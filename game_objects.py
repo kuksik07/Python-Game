@@ -2,6 +2,7 @@ import pygame
 import pymunk
 from pymunk import Vec2d
 import random
+import math
 
 
 class Ball():
@@ -26,16 +27,43 @@ class Ball():
         self.path_color = (0, random.randint(200, 255), random.randint(200, 255))
 
 
-class Polygon():
-    def __init__(self, pos, size, space):
-        mass = 5
-        moment = pymunk.moment_for_box(mass, size)
+class Brick():
+    def __init__(self, pos, space, size=(30, 30)):
+        mass = 20
+        moment = 1000
         body = pymunk.Body(mass, moment)
         body.position = Vec2d(pos)
         shape = pymunk.Poly.create_box(body, size)
         shape.friction = 0.4
-        shape.collision_type = 2
+        shape.collision_type = 1
         space.add(body, shape)
         self.body = body
         self.shape = shape
+        self.image = pygame.image.load("./assets/pictures/box.png")
 
+    def to_pygame(self, p):
+        return int(p.x), int(-p.y + 600)
+
+    def draw_brick(self, screen):
+        poly = self.shape
+        p = poly.body.position
+        p = Vec2d(self.to_pygame(p))
+        angle_degrees = math.degrees(poly.body.angle) + 180
+        rotated_logo_img = pygame.transform.rotate(self.image, angle_degrees)
+        offset = Vec2d(rotated_logo_img.get_size()) / 2.
+        p = p - (offset - (1, 52))
+        np = p
+        screen.blit(rotated_logo_img, (np.x, np.y))
+
+
+class HorizontalBrick(Brick):
+    def __init__(self, pos, space):
+        Brick.__init__(self, pos, space, (90, 30))
+        self.image = pygame.image.load("./assets/pictures/brick.png")
+
+
+class VerticalBrick(Brick):
+    def __init__(self, pos, space):
+        Brick.__init__(self, pos, space, (30, 90))
+        self.image = pygame.image.load("./assets/pictures/brick.png")
+        self.image = pygame.transform.rotate(self.image, 90)

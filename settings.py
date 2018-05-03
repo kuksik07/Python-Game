@@ -8,6 +8,7 @@ RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
+ORANGE = (255, 165, 0)
 ROPE_BACK_COLOR = (68, 36, 103)
 ROPE_FRONT_COLOR = (97, 63, 121)
 
@@ -15,6 +16,7 @@ ROPE_FRONT_COLOR = (97, 63, 121)
 FPS = 50
 
 # Sprites
+icon = pygame.image.load('assets/pictures/icon.ico')
 background = pygame.image.load('assets/pictures/bg6.png')
 cursor = pygame.image.load('assets/pictures/cursor.png')
 cursor_pressed = pygame.image.load('assets/pictures/cursor_pressed.png')

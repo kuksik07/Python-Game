@@ -4,11 +4,13 @@ import pymunk.pygame_util
 from pymunk import Vec2d
 import sys, random, time, math
 from game_objects import *
+from level import *
 from settings import *  # All sprites, colors, etc. - are there
 
 # Pygame
 pygame.init()
-pygame.display.set_caption("My game!")
+pygame.display.set_caption("Balls vs bricks")
+pygame.display.set_icon(icon)
 screen = pygame.display.set_mode(SCREEN_SIZE)
 pygame.mouse.set_visible(False)
 clock = pygame.time.Clock()
@@ -20,7 +22,7 @@ space.gravity = (0.0, -700.0)
 draw_options = pymunk.pygame_util.DrawOptions(screen)
 
 balls = []
-boxes = []
+bricks = []
 ticks_to_next_ball = 10
 rope_lenght = 90
 mouse_distance = 0
@@ -30,6 +32,11 @@ y_mouse = 0
 sling_x, sling_y = 150, 490
 sling2_x, sling2_y = 170, 490
 counter = 0
+solve_brick_count = 0
+normal_font = pygame.font.SysFont("arial", 14, bold=False)
+bold_font = pygame.font.SysFont("arial", 30, bold=True)
+bold_font2 = pygame.font.SysFont("arial", 40, bold=True)
+bold_font3 = pygame.font.SysFont("arial", 50, bold=True)
 restart_counter = False
 delete_all = False
 
@@ -40,35 +47,27 @@ static_lines = [pymunk.Segment(static_body, (0.0, 060.0), (1200.0, 060.0), 0.0),
 for line in static_lines:
     line.elasticity = 0.95
     line.friction = 1
-    line.collision_type = 3
+    line.collision_type = 2
 
 space.add(static_lines)
 
-box = Polygon((800, 70), (30, 100), space)
-boxes.append(box)
-box = Polygon((900, 70), (30, 100), space)
-boxes.append(box)
-box = Polygon((850, 190), (130, 30), space)
-boxes.append(box)
-box = Polygon((850, 220), (30, 100), space)
-boxes.append(box)
 
-# Convert pymunk to pygame coordinates
 def to_pygame(p):
+    """Convert pymunk to pygame coordinates"""
     return int(p.x), int(-p.y+600)
 
 
-# Return the vector of the points:
-# p0 = (xo,yo), p1 = (x1,y1)
 def vector(p0, p1):
+    """Return the vector of the points:
+    p0 = (xo,yo), p1 = (x1,y1)"""
     a = p1[0] - p0[0]
     b = p1[1] - p0[1]
     return (a, b)
 
 
-# Return the unit vector of the points
 def unit_vector(v):
-    # v = (a,b)
+    """Return the unit vector of the points
+    v = (a,b)"""
     h = ((v[0]**2)+(v[1]**2))**0.5
     if h == 0:
         h = 0.000000000000001
@@ -77,8 +76,8 @@ def unit_vector(v):
     return (ua, ub)
 
 
-# distance between points
 def distance(x0, y0, x, y):
+    """Distance between points"""
     dx = x - x0
     dy = y - y0
     d = ((dx ** 2) + (dy ** 2)) ** 0.5
@@ -127,27 +126,58 @@ def sling_action():
     angle = math.atan((float(dy))/dx)
 
 
+def post_solve_ball_brick(arbiter, space, _):
+    """Collision between ball and brick"""
+    brick_to_remove = []
+    if arbiter.total_impulse.length > 1200:
+        a, b = arbiter.shapes
+        for brick in bricks:
+            if b == brick.shape:
+                brick_to_remove.append(brick)
+
+        for brick in brick_to_remove:
+            bricks.remove(brick)
+
+        space.remove(b, b.body)
+
+        # global score
+        # score += 5000
+
+
+# ball and brick collision
+space.add_collision_handler(0, 1).post_solve=post_solve_ball_brick
+
+# Build the level
+level = Level(bricks, space)
+level.level_0()
+
+
+"""def restart():
+    pass"""
+
 while True:
     for event in pygame.event.get():
         keys = pygame.key.get_pressed()
         if event.type == pygame.QUIT or keys[pygame.K_ESCAPE]:
             sys.exit(0)
-        elif event.type == pygame.MOUSEBUTTONDOWN:
+        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             mouse_pressed = True
 
         elif event.type == pygame.MOUSEBUTTONUP and mouse_pressed:
             # Release new ball
             mouse_pressed = False
-            x0 = 164
-            y0 = 163
-            if mouse_distance > rope_lenght:
-                mouse_distance = rope_lenght
-            if x_mouse < sling_x:
-                ball = Ball(mouse_distance, angle, x0, y0, space)
-                balls.append(ball)
-            else:
-                ball = Ball(-mouse_distance, angle, x0, y0, space)
-                balls.append(ball)
+            if level.number_of_balls > 0:
+                level.number_of_balls -= 1
+                x0 = 164
+                y0 = 163
+                if mouse_distance > rope_lenght:
+                    mouse_distance = rope_lenght
+                if x_mouse < sling_x:
+                    ball = Ball(mouse_distance, angle, x0, y0, space)
+                    balls.append(ball)
+                else:
+                    ball = Ball(-mouse_distance, angle, x0, y0, space)
+                    balls.append(ball)
 
         elif keys[pygame.K_UP]:
             delete_all = True
@@ -170,11 +200,20 @@ while True:
         counter = 0
         restart_counter = False
 
+    # Draw the birds in the wait line
+    if level.number_of_balls > 0:
+        for i in range(level.number_of_balls - 1):
+            x = 110 - (i * 32.5)
+            screen.blit(ball_img, (x, 570))
+
     # Draw sling behavior
-    if mouse_pressed:
+    if mouse_pressed and level.number_of_balls > 0:
         sling_action()
-    elif len(balls) == 0:
-        pygame.draw.line(screen, ROPE_BACK_COLOR, (sling_x, sling_y + 2), (sling2_x, sling2_y), 5)
+    else:
+        if level.number_of_balls > 0:
+            screen.blit(ball_img, (150, 475))
+        else:
+            pygame.draw.line(screen, ROPE_BACK_COLOR, (sling_x, sling_y + 2), (sling2_x, sling2_y), 5)
 
     for ball in balls:
         # Balls to remove
@@ -216,11 +255,20 @@ while True:
 
     # space.debug_draw(draw_options)  # to display the physical representation
 
-    # Cursor
+    for brick in bricks:
+        brick.draw_brick(screen)
+
+    # Draw cursor
     if not mouse_pressed:
         screen.blit(cursor, (x_mouse, y_mouse))
     else:
         screen.blit(cursor_pressed, (x_mouse, y_mouse))
+
+    # Draw fps
+    fps_caption = normal_font.render("FPS", 1, WHITE)
+    fps_value = normal_font.render(str(round(clock.get_fps())), 1, WHITE)
+    screen.blit(fps_caption, (5, 5))
+    screen.blit(fps_value, (45, 5))
 
     # Update physics
     dt = 1.0 / FPS / 2.
@@ -230,4 +278,3 @@ while True:
     # Flip screen
     pygame.display.flip()
     clock.tick(FPS)
-    pygame.display.set_caption("fps: " + str(clock.get_fps()))
