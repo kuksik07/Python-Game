@@ -21,6 +21,20 @@ background = pygame.image.load('assets/pictures/bg6.png')
 cursor = pygame.image.load('assets/pictures/cursor.png')
 cursor_pressed = pygame.image.load('assets/pictures/cursor_pressed.png')
 ball_img = pygame.image.load('assets/pictures/ball_new.png')
-# ball_img = pygame.transform.scale(ball_img, (30, 30))
 sling_shot_back = pygame.image.load('assets/pictures/sling-shot-back2.png')
 sling_shot_front = pygame.image.load('assets/pictures/sling-shot-front2.png')
+
+# Sound
+brick_crashed = 'assets/sound/glassy-tap.wav'
+throw = 'assets/sound/stuff-up.wav'
+jump = 'assets/sound/jump.ogg'
+bg_song = 'assets/sound/bg.mp3'
+
+# Icons
+music_on = pygame.image.load('assets/pictures/icons/musicOn.png')
+music_off = pygame.image.load('assets/pictures/icons/musicOff.png')
+audio_on = pygame.image.load('assets/pictures/icons/audioOn.png')
+audio_off = pygame.image.load('assets/pictures/icons/audioOff.png')
+pause = pygame.image.load('assets/pictures/icons/pause.png')
+repeat = pygame.image.load('assets/pictures/icons/return.png')
+resume = pygame.image.load('assets/pictures/icons/resume.png')

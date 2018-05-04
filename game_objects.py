@@ -29,15 +29,16 @@ class Ball():
 
 class Brick():
     def __init__(self, pos, space, size=(30, 30)):
-        mass = 20
+        mass = 5
         moment = 1000
         body = pymunk.Body(mass, moment)
         body.position = Vec2d(pos)
         shape = pymunk.Poly.create_box(body, size)
-        shape.friction = 0.4
+        shape.friction = 0.5
         shape.collision_type = 1
         space.add(body, shape)
         self.body = body
+        self.isBase = False
         self.shape = shape
         self.image = pygame.image.load("./assets/pictures/box.png")
 
