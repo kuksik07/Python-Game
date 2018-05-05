@@ -12,7 +12,7 @@ class Ball():
         inertia = pymunk.moment_for_circle(mass, 0, radius, (0, 0))
         body = pymunk.Body(mass, inertia)
         body.position = x, y
-        power = distance * 60
+        power = distance * 65
         impulse = power * Vec2d(1, 0)
         angle = -angle
         body.apply_impulse_at_local_point(impulse.rotated(angle))

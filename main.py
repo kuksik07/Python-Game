@@ -40,6 +40,7 @@ effect_volume1 = 0.5
 effect_volume2 = 0.2
 music_volume = 0.5
 restart_counter = False
+bonus_score = True
 mouse_pressed = False
 audio = True
 music = True
@@ -62,7 +63,7 @@ space.add(static_lines)
 
 def to_pygame(p):
     """Convert pymunk to pygame coordinates"""
-    return int(p.x), int(-p.y+600)
+    return int(p.x), int(-p.y + 600)
 
 
 def vector(p0, p1):
@@ -76,7 +77,7 @@ def vector(p0, p1):
 def unit_vector(v):
     """Return the unit vector of the points
     v = (a,b)"""
-    h = ((v[0]**2)+(v[1]**2))**0.5
+    h = ((v[0] ** 2) + (v[1] ** 2)) ** 0.5
     if h == 0:
         h = 0.000000000000001
     ua = v[0] / h
@@ -106,7 +107,7 @@ def sling_action():
     uv1 = uv[0]
     uv2 = uv[1]
     mouse_distance = distance(sling_x, sling_y, x_mouse, y_mouse)
-    pu = (uv1*rope_lenght+sling_x, uv2*rope_lenght+sling_y)
+    pu = (uv1 * rope_lenght + sling_x, uv2 * rope_lenght + sling_y)
     bigger_rope = 100
     x_ball = x_mouse - 15
     y_ball = y_mouse - 15
@@ -115,13 +116,13 @@ def sling_action():
         pux -= 15
         puy -= 15
         pul = pux, puy
-        pu2 = (uv1*bigger_rope+sling_x, uv2*bigger_rope+sling_y)
+        pu2 = (uv1 * bigger_rope + sling_x, uv2 * bigger_rope + sling_y)
         pygame.draw.line(screen, ROPE_BACK_COLOR, (sling2_x, sling2_y), pu2, 5)
         screen.blit(ball_img, pul)
         pygame.draw.line(screen, ROPE_FRONT_COLOR, (sling_x, sling_y), pu2, 5)
     else:
         mouse_distance += 10
-        pu3 = (uv1*mouse_distance+sling_x, uv2*mouse_distance+sling_y)
+        pu3 = (uv1 * mouse_distance + sling_x, uv2 * mouse_distance + sling_y)
         pygame.draw.line(screen, ROPE_BACK_COLOR, (sling2_x, sling2_y), pu3, 5)
         screen.blit(ball_img, (x_ball, y_ball))
         pygame.draw.line(screen, ROPE_FRONT_COLOR, (sling_x, sling_y), pu3, 5)
@@ -131,14 +132,14 @@ def sling_action():
     dx = x_mouse - sling_x
     if dx == 0:
         dx = 0.00000000000001
-    angle = math.atan((float(dy))/dx)
+    angle = math.atan((float(dy)) / dx)
 
 
 def draw_level_failed():
     """Draw level failed"""
     global game_state
     failed_caption = font2.render("Level Failed", 1, WHITE)
-    if level.number_of_balls <= 0 < len(bricks) and\
+    if level.number_of_balls <= 0 < len(bricks) and \
             time.time() - t1 > 5 and game_state != 1:
         game_state = 2
         screen.blit(failed_caption, (525, 200))
@@ -149,8 +150,12 @@ def draw_level_complete():
     """Draw level complete"""
     global game_state
     global score
+    global bonus_score
     level_complete_caption = font2.render("Level Complete!", 1, WHITE)
     if level.number_of_balls >= 0 and len(bricks) == 0 and game_state != 1:
+        if bonus_score:
+            score += level.number_of_balls * 5000
+        bonus_score = False
         game_state = 3
         screen.blit(level_complete_caption, (475, 200))
         screen.blit(repeat, (525, 300))
@@ -159,6 +164,7 @@ def draw_level_complete():
 
 def restart():
     """Delete all objects of the level"""
+    global bonus_score
     balls_to_remove = []
     bricks_to_remove = []
     for ball in balls:
@@ -171,13 +177,14 @@ def restart():
     for brick in bricks_to_remove:
         space.remove(brick.shape, brick.shape.body)
         bricks.remove(brick)
+    bonus_score = True
 
 
 def post_solve_ball_brick(arbiter, space, _):
     """Collision between ball and brick"""
     global score
     brick_to_remove = []
-    if arbiter.total_impulse.length > 1200:
+    if arbiter.total_impulse.length > 1100:
         a, b = arbiter.shapes
         for brick in bricks:
             if b == brick.shape:
@@ -203,7 +210,7 @@ def post_solve_brick_floor(arbiter, space, _):
     a, b = arbiter.shapes
     for brick in bricks:
         if a == brick.shape and (not brick.isBase or
-                                 (brick.isBase and math.fabs(round(math.degrees(brick.shape.body.angle)) == 90))):
+                                 (brick.isBase and math.fabs(round(math.degrees(brick.shape.body.angle))) == 90)):
             # Song
             brick_crashed_song = pygame.mixer.Sound(brick_crashed)
             brick_crashed_song.play()
@@ -251,7 +258,7 @@ while True:
         keys = pygame.key.get_pressed()
         if event.type == pygame.QUIT or keys[pygame.K_ESCAPE]:
             sys.exit(0)
-        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1\
+        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 \
                 and (x_mouse < 400 and y_mouse > 100) and game_state == 0:
             mouse_pressed = True
 
